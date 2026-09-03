@@ -1,0 +1,22 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "macos-clang-debug",
+            "displayName": "macOS Apple Clang Debug",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "macos-clang-debug",
+            "configurePreset": "macos-clang-debug"
+        }
+    ]
+}
