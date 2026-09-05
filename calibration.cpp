@@ -1,13 +1,13 @@
 #include <iostream>
 
-void calibrateBaseline(double& baselineRatio, int& calibrationFrames, int calibrationTarget, double mouthRatio){
+void calibrateBaseline(double& baselineRatio, int& calibrationFrames, int calibrationTarget, double smoothedRatio){
     if(calibrationFrames < calibrationTarget){
-        baselineRatio += mouthRatio;
+        baselineRatio += smoothedRatio;
         calibrationFrames++;
         if (calibrationFrames == calibrationTarget) {
             baselineRatio /= calibrationTarget;
         }
-    } else if (mouthRatio > baselineRatio * 1.15) {
+    } else if (smoothedRatio > baselineRatio * 2.5) {
             std::cout << "Smiling" << std::endl;
         }
 }

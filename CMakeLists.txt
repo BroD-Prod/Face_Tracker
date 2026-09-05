@@ -13,7 +13,3 @@ find_package(OpenCV REQUIRED)
 add_executable(Face_Tracker main.cpp calibration.cpp)
 
 target_link_libraries(Face_Tracker PRIVATE ${OpenCV_LIBS})
-
-set(HAARCASCADE_PATH "/opt/homebrew/Cellar/opencv@4/4.14.0_6/share/opencv4/haarcascades/haarcascade_frontalface_default.xml")
-configure_file(${HAARCASCADE_PATH} ${CMAKE_BINARY_DIR}/haarcascade_frontalface_default.xml COPYONLY)
-target_compile_definitions(Face_Tracker PRIVATE HAARCASCADE_PATH="${HAARCASCADE_PATH}")

@@ -1,12 +1,15 @@
 #include <iostream>
+#include <queue>
+#include <deque>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <numeric>
 using namespace cv;
  
-void calibrateBaseline(double& baselineRatio, int& calibrationFrames, int calibrationTarget, double mouthRatio);
+void calibrateBaseline(double& baselineRatio, int& calibrationFrames, int calibrationTarget, double smoothedRatio);
 
 int main()
 {
@@ -36,6 +39,9 @@ int main()
     int calibrationFrames = 0;
     const int CalibrationTarget = 60;  
 
+    std::deque<double> ratioHistory;
+    const size_t maxHistorySize = 100;
+
     while (true)
     {
         camera >> frame;
@@ -57,15 +63,24 @@ int main()
             Point2f noseTip(faces.at<float>(i, 8), faces.at<float>(i,9));
             Point2f mouthRight(faces.at<float>(i, 10), faces.at<float>(i, 11));
             Point2f mouthLeft(faces.at<float>(i, 12), faces.at<float>(i, 13));
-
+            
             // Calculate Mouth Movements
             double mouthWidth = norm(mouthRight - mouthLeft);
             double eyeDistance = norm(rightEye - leftEye);
             double mouthRatio = mouthWidth / eyeDistance;
 
-            calibrateBaseline(baselineRatio, calibrationFrames, CalibrationTarget, mouthRatio);
             std::cout << "Mouth Ratio:" << mouthRatio << std::endl;
 
+            // Create a history of mouth ratios to improve stability of detection
+            ratioHistory.push_back(mouthRatio);
+            if(ratioHistory.size() > maxHistorySize){
+                ratioHistory.pop_front();
+            }
+
+            double smoothedRatio = std::accumulate(ratioHistory.begin(), ratioHistory.end(), 0.0) / ratioHistory.size();
+
+            calibrateBaseline(baselineRatio, calibrationFrames, CalibrationTarget, smoothedRatio);
+            
             // Draw Facial Points
             rectangle(frame, face, Scalar(0, 255, 0), 2);
             circle(frame, rightEye, 3, Scalar(0, 0, 255), -1);
